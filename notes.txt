@@ -1,3 +1,6 @@
+Branches
+   master
+   http-client-data-service
 Registrig HttpClientModule
 
 import { HttpClientModule } from '@angular/common/http'
@@ -17,3 +20,104 @@ import { HttpClientModule } from '@angular/common/http'
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+we register HttpClientModule but  use ____ for http requrest
+HttpClient
+
+import for HttpClient
+import {HttpClient} from '@angular/common/http'
+
+get all books in ngOnInit()
+ngOnInit() {
+    this.dataService.getAllBooks()
+       .subscribe(
+        (data:Book[]) => this.allBooks = data,
+        (error:any) => console.log(error),
+        ()=> console.log('All done getting books. ')
+       )
+    this.title.setTitle(`Book Tracker`);
+  }
+
+getting books using http observable
+getAllBooks(): Observable<Book[]> {
+    return  this.http.get<Book[]>('/api/books')
+  }
+
+  http getting book by id using http observable
+  getBookById(id: number): Observable<Book> {
+    let getHeaders: HttpHeaders = new HttpHeaders({
+       'Accept' : 'application/json',
+       'Authorization': 'my-token'
+    });
+    return this.http.get<Book>(`/api/books/${id}`,{
+      headers: getHeaders
+    });
+  }
+
+  Transforming book to old book type
+  getBookById(id: number): Observable<OldBook> {
+    return this.http.get<Book>(`/api/books/${id}`)
+            .pipe(
+              map(b => <OldBook>{
+                booKTitle: b.Title,
+                year: b.publicationYear
+              })
+            );
+  }
+
+  http update a book
+  updateBook(updateBook:Book): Observable<void>{
+      return this.http.put<void>(`/api/books/${updateBook.bookID}`,updateBook,{
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+    }
+
+  http add a book
+    addBook(newBook:Book): Observable<Book>{
+    return this.http.post<Book>('/api/books',newBook,{
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    })
+  }
+
+  http  delete a book
+      deleteBook(bookID:number): Observable<void>{
+      return this.http.delete<void>(`api/books/${bookID}`);
+    }
+
+   update book in component
+    this.dataService.updateBook(this.selectedBook)
+        .subscribe(
+          (data:void) => console.log(`${this.selectedBook.title} updated successfully.`),
+          (err:any)  => console.log
+        );
+
+
+    Delete book in component
+    deleteBook(bookID: number): void {
+    this.dataService.deleteBook(bookID)
+       .subscribe(
+        (data:void) =>{
+          let index:number = this.allBooks.findIndex(book => book.bookID === bookID);
+          this.allBooks.splice(index,1)
+        },
+        (error:any)=> console.log(error)
+       )
+    }
+
+
+    post a book in component
+      saveBook(formValues: any): void {
+    let newBook: Book = <Book>formValues;
+    newBook.bookID = 0;
+    this.dataService.addBook(newBook)
+    .subscribe(
+      (data:Book) => console.log(data),
+      (error:any) => console.log(error)
+      );
+    }
+
+
