@@ -1,0 +1,19 @@
+Registrig HttpClientModule
+
+import { HttpClientModule } from '@angular/common/http'
+@NgModule({
+  declarations: [
+    .....
+  ],
+  providers: [
+   .....
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
